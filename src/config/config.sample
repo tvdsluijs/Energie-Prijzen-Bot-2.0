@@ -1,0 +1,24 @@
+// rename this file to config.conf
+// fill in the telegram bot api key
+// fill in your admin id or id's (alwasy use multiple or end with ,0 )
+// remove this and the above lines
+
+[telegram]
+key:
+admin_ids: int_1,int_2,int_3
+
+[entsoe]
+key:
+
+[twitter]
+on: 1 # when 1 its on, 0 is off!
+# Consumer Keys
+api_key:
+api_key_secret:
+
+client_key:
+client_key_secret:
+# Authentication Tokens
+bearer_token:
+access_token:
+access_token_secret:
