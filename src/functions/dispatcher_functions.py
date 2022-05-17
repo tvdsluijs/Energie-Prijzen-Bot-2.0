@@ -34,6 +34,11 @@ class Dispatcher_Functions(object):
             self.path = self.config['other']['path']
             self.startTime = self.config['other']['startTime']
 
+            self.twitter_ochtend_hour = 8
+            self.twitter_middag_hour = 15
+
+            self.hashtags = "\n #energie #energieprijzen #energietarieven #gasprijs"
+
             self.date_hours = []
             super().__init__()
         except KeyError as e:
@@ -52,10 +57,11 @@ class Dispatcher_Functions(object):
                 return
 
             self.process_new_prices()
+            self.tweet_current()
             self.ochtend_melding(context=context, hour=cur_hour)
             self.middag_melding(context=context, hour=cur_hour)
+            self.onder_bedrag_melding(context=context)
 
-            # self.onder_bedrag_melding(context=context)
             # self.boven_bedrag_melding(context=context)
 
         except Exception as e:
@@ -151,7 +157,6 @@ class Dispatcher_Functions(object):
                 seconds = int(time()) - int(self.startTime)
 
                 U = Users(dbname=self.dbname)
-                print(U.get_users())
                 users = len(U.get_users())
                 del U
 
@@ -342,7 +347,7 @@ class Dispatcher_Functions(object):
             el_prices = 0
             try:
                 for d in data:
-                    if d['kind'== 'e']:
+                    if d['kind'] == 'e':
                         el_prices = 1
                         break
 
@@ -350,7 +355,7 @@ class Dispatcher_Functions(object):
                 if el_prices == 0:
                     return False
 
-            except KeyError:
+            except KeyError as e:
                 return False
 
             U = Users(dbname=self.dbname)
@@ -367,6 +372,27 @@ class Dispatcher_Functions(object):
                     context.bot.send_message(chat_id=id, text=msg, parse_mode=ParseMode.MARKDOWN_V2)
 
             del P
+
+            # Lengte van bericht is 416 dus veel te lang om op twitter te laten zien
+            # Dus laten we het per uur zien! Zie functie tweet_current
+            # if hour == self.twitter_middag_hour:
+            #     T = Tweet(config=self.config)
+            #     T.tweettie(msg=msg)
+            #     del T
+
+        except Exception as e:
+            log.error(e, exc_info=True)
+
+    def tweet_current(self)->None:
+        try:
+            P = Prices(dbname=self.dbname)
+            if not (msg := P.get_cur_price()):
+                return False
+
+            msg = msg + " " + self.hashtags
+            T = Tweet(config=self.config)
+            T.tweettie(msg=msg)
+            del T
         except Exception as e:
             log.error(e, exc_info=True)
 
@@ -382,8 +408,8 @@ class Dispatcher_Functions(object):
                 raise Exception('Geen ochtend prijzen op kunnen halen')
             del P
 
-            if hour == 8:
-                tweet = msg + " Meer zien? Volg de telegram bot! https://t.me/EnergiePrijzen_bot"
+            if hour == self.twitter_ochtend_hour:
+                tweet = msg + " Meer zien? Volg de telegram bot! https://t.me/EnergiePrijzen_bot " + self.hashtags
                 T = Tweet(config=self.config)
                 T.tweettie(msg=tweet)
                 del T

@@ -1,6 +1,8 @@
-# Energie Prijzen Bot
+# Energie Prijzen Bot 2.0
 
-Een Telegram bot die de dagelijkse actuele inkoop energie prijzen verwerkt en toont.
+Een Telegram bot die de dagelijkse actuele inkoop energie prijzen verwerkt en toont. Dit is versie 2 van de Bot. Op een gegeven moment kreeg ik zoveel aanvragen van nieuwe features dat ik echt opnieuw moest beginnen omdat de eerste versie niet was gebouwd op het invoeren van extra features.
+
+Op moment van Livegang van 2.0 zal de eerste versie gearchiveerd gaan worden. De Bot blijft werken zoals hij eerder werkte.
 
 ## Omschrijving
 Een Telegram bot die de dagelijkse actuele inkoop energie prijzen verwerkt en toont die gebruikt worden door Frank Energie, ANWB, EnergieZero, EasyEnergy, Tibber, Nieuwestroom, LeasePlan Energy, MijnDomein Energie.
@@ -89,6 +91,9 @@ info@itheo.tech
 [Theo van der Sluijs](https://itheo.tech)
 
 ## Versiegeschiedenis
+
+17th mei, 2022 - versie: 2.0.1 
+- Bugfixes van nieuwe versie, test klaar om op digital ocean te zetten 
 
 03th mei, 2022 - versie: 1.2.0
 - Koppeling gemaakt met entsoe voor 3 cijfers achter komma prijzen, meer system informatie en wat kleine layout aanpassingen.

@@ -52,7 +52,7 @@ class Prices(PricesSQL):
             gas_price= self.dutch_floats(price=gas['price'])
 
             return f"""
-Prijzen {elect['fromtime']}\-{self.next_hour(hour=time)}
+Prijzen van {elect['fromtime']} tot {self.next_hour(hour=time)}
 ⚡ {elect_price}
 🔥 {gas_price}"""
 

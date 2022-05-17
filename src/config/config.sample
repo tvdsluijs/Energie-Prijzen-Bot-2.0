@@ -11,7 +11,9 @@ admin_ids: int_1,int_2,int_3
 key:
 
 [twitter]
-on: 1 # when 1 its on, 0 is off!
+# when 1 its on, 0 is off!
+on: 1
+
 # Consumer Keys
 api_key:
 api_key_secret:

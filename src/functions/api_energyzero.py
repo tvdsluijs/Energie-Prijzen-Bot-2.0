@@ -69,8 +69,6 @@ class EnergieZero_API:
                 price['price'] = d['price']
                 price['kind'] = kind
 
-                print(price)
-
                 prices.append(price)
 
             if prices:
