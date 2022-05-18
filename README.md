@@ -92,6 +92,9 @@ info@itheo.tech
 
 ## Versiegeschiedenis
 
+18th mei, 2022 - versie: 2.0.2 
+- Wat kleine bugfixes en verbetering van DEV ACC PROD 
+
 17th mei, 2022 - versie: 2.0.1 
 - Bugfixes van nieuwe versie, test klaar om op digital ocean te zetten 
 

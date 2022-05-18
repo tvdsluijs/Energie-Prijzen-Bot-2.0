@@ -23,7 +23,7 @@ class MainSQL(object):
         try:
             self._conn = sqlite3.connect(self.__dbname)
             self._conn.row_factory = sqlite3.Row
-            if PY_ENV != 'prod':
+            if PY_ENV =='dev':
                 self._conn.set_trace_callback(print)
 
             if not self._conn:

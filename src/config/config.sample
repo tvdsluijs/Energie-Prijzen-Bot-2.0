@@ -4,13 +4,34 @@
 // remove this and the above lines
 
 [telegram]
-key:
+#dev bot
+dev_key:
+#acc bot
+acc_key:
+#live bot
+live_key:
+
 admin_ids: int_1,int_2,int_3
 
 [entsoe]
 key:
 
-[twitter]
+[twitter_dev]
+# when 1 its on, 0 is off!
+on: 1
+
+# Consumer Keys
+api_key:
+api_key_secret:
+
+client_key:
+client_key_secret:
+# Authentication Tokens
+bearer_token:
+access_token:
+access_token_secret:
+
+[twitter_prod]
 # when 1 its on, 0 is off!
 on: 1
 

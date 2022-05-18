@@ -29,7 +29,7 @@ class Dispatcher_Functions(object):
             admin_ids = self.config['telegram']['admin_ids'].split(',')
             self.admin_ids = [int(i) for i in admin_ids]
 
-            self.telegram_key = self.config['telegram']['key']
+            self.telegram_key = self.get_telegram_key()
             self.entsoe_key = self.config['entsoe']['key']
             self.path = self.config['other']['path']
             self.startTime = self.config['other']['startTime']
@@ -44,7 +44,23 @@ class Dispatcher_Functions(object):
         except KeyError as e:
             log.error(e, exc_info=True)
         except Exception as e:
-            log.critical(e)
+            log.critical(e, exc_info=True)
+
+    def get_telegram_key(self)->str:
+        try:
+            match PY_ENV:
+                case 'dev':
+                    return self.config['telegram']['dev_key']
+                case 'acc':
+                    return self.config['telegram']['acc_key']
+                case 'prod':
+                    return self.config['telegram']['prod_key']
+                case _:
+                    return self.config['telegram']['dev_key']
+        except KeyError as e:
+            log.error(e, exc_info=True)
+        except Exception as e:
+            log.critical(e, exc_info=True)
 
     def auto_bot(self, context: telegram.ext.CallbackContext)->None:
         #deze functie handelt automatische meldingen af en haalt de energie prijzen op
@@ -228,7 +244,8 @@ class Dispatcher_Functions(object):
             except IndexError:
                 U = Users(dbname=self.dbname)
                 user = U.get_user(user_id=update.message.chat_id)
-                msg = U.get_instellingen(user=user)
+                if not (msg := U.get_instellingen(user=user)):
+                    msg = "Sorry er ging iets fout!"
 
                 del U
 

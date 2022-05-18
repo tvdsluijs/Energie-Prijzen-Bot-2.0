@@ -22,9 +22,18 @@ logging.config.fileConfig(os.path.join(config_folder, 'logging.conf'))
 PY_ENV = os.getenv('PY_ENV', 'dev')
 log = logging.getLogger(PY_ENV)
 
-if PY_ENV == 'prod':
-    logger = logging.getLogger()
-    logger.setLevel(logging.ERROR)
+match PY_ENV:
+    case 'dev':
+        logger = logging.getLogger()
+        logger.setLevel(logging.INFO)
+    case 'acc':
+        logger = logging.getLogger()
+        logger.setLevel(logging.DEBUG)
+    case 'prod':
+        logger = logging.getLogger()
+        logger.setLevel(logging.ERROR)
+    case _:
+        pass
 
 class EnergieBot():
     def __init__(self) -> None:

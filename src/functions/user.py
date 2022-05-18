@@ -24,7 +24,7 @@ U krijg ook bericht wanneer de prijzen onder de 0.001 zakt."""
                 else:
                     return True
         except Exception as e:
-            log.error(e)
+            log.error(e, exc_info=True)
             if msg:
                 return "Er is iets fout gegaan bij het opslaan van de gebruiker"
             else:
@@ -36,14 +36,14 @@ U krijg ook bericht wanneer de prijzen onder de 0.001 zakt."""
                 return False
             return self._get_user(user_id=user_id)
         except Exception as e:
-            log.error(e)
+            log.error(e, exc_info=True)
             return False
 
     def get_users(self)->list:
         try:
             return self._get_users()
         except Exception as e:
-            log.error(e)
+            log.error(e, exc_info=True)
             return False
 
     def del_user(self, user_id:int = None, msg:bool = False)->str:
@@ -58,7 +58,7 @@ U ontvangt geen berichten meer. U kunt nog wel gebruik maken van deze Bot.
                 else:
                     return True
         except Exception as e:
-            log.error(e)
+            log.error(e, exc_info=True)
             if msg:
                 return "Er is iets fout gegaan bij het verwijderen"
             else:
@@ -68,41 +68,35 @@ U ontvangt geen berichten meer. U kunt nog wel gebruik maken van deze Bot.
         try:
             return self._get_ochtend_users(hour=hour)
         except Exception as e:
-            log.error(e)
+            log.error(e, exc_info=True)
             return False
 
     def get_middag_users(self, hour:int=15)->list:
         try:
             return self._get_middag_users(hour=hour)
         except Exception as e:
-            log.error(e)
+            log.error(e, exc_info=True)
             return False
 
     def get_lower_price_users(self, price:float=0.001)->list:
         try:
             return self._get_lower_price_users(price=price)
         except Exception as e:
-            log.error(e)
+            log.error(e, exc_info=True)
             return False
 
     def get_higher_price_users(self, price:float=0.200)->list:
         try:
             return self._get_higher_price_users(price=price)
         except Exception as e:
-            log.error(e)
+            log.error(e, exc_info=True)
             return False
 
 
     def get_instellingen(self, user:dict = None)->str:
         try:
-            if not user or user['user_id'] < 0:
-                msg = """
-U staat niet in het systeem!
-
-Aanmelden voor automatische updates?
-/aanmelden
-of
-/a"""
+            if user is None or user['user_id'] < 0:
+                raise KeyError
             else:
                 msg = f"""Uw chat id is {user['user_id']}
 U ontvangt de volgende berichten:
@@ -137,8 +131,16 @@ Geen bedrag hoger dan update"""
 Hulp? /instellingen help
 """
             return msg
+        except KeyError:
+            return """
+U staat niet in het systeem!
+
+Aanmelden voor automatische updates?
+/aanmelden
+of
+/a"""
         except Exception as e:
-            log.error(e)
+            log.error(e, exc_info=True)
             return False
 
     def set_ochtend(self, context: telegram.ext.CallbackContext, user_id:int = None)->bool:
@@ -158,7 +160,7 @@ Wil je iets doen zoals:
 /ochtend uit
 """
             except Exception as e:
-                log.error(e)
+                log.error(e, exc_info=True)
 
             try:
                 if aan_uit == 1:
@@ -176,7 +178,7 @@ Wil je iets doen zoals:
                 return "Er ging iets fout"
 
         except Exception as e:
-            log.error(e)
+            log.error(e, exc_info=True)
 
     def set_middag(self, context: telegram.ext.CallbackContext, user_id:int = None)->bool:
         aan_uit = None
@@ -195,7 +197,7 @@ Wil je iets doen zoals:
 /middag uit
 """
             except Exception as e:
-                log.error(e)
+                log.error(e, exc_info=True)
 
             try:
                 if aan_uit == 1:
@@ -213,4 +215,4 @@ Wil je iets doen zoals:
                 return "Er ging iets fout"
 
         except Exception as e:
-            log.error(e)
+            log.error(e, exc_info=True)
