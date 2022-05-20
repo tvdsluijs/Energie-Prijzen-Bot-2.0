@@ -1,10 +1,13 @@
-from datetime import datetime
+import ast
 import os
 import logging
 
-import psutil
+from datetime import datetime
 
+import psutil
 from telegram.utils.helpers import escape_markdown
+
+from functions.prices import Prices
 
 PY_ENV = os.getenv('PY_ENV', 'dev')
 log = logging.getLogger(PY_ENV)
@@ -13,33 +16,41 @@ class Systeem():
     def __init__(self) -> None:
         pass
 
-    def systeminfo_msg(self, dt:str=None, version:str=None, dbname:str = None, users:int = None, seconds:int = None)->str:
+    def systeminfo_msg(self, version:str=None, dbname:str = None, users:int = None, seconds:int = None)->str:
         try:
+            P = Prices(dbname=dbname)
             vandaag_ts = datetime.now()
             vandaag = vandaag_ts.strftime(("%Y-%m-%d %H:%M"))
+            first = P.get_first_price()
+            last = P.get_last_price()
 
             sysinfo = f"""
-System time : {vandaag}
-Bot version : {version}
-Database :    {self.fileSize(dbname)}
-Uptime :      {self.secondsToText(seconds)}
-Users :       {users}
-CPU load :    {self.get_cpu_usage_pct()}%
-RAM usage:    {int(self.get_ram_usage() / 1024 / 1024)} MB
+System time: {vandaag}
+Bot version: {version}
+Database   : {self.fileSize(dbname)}
+Eerste  💡 : {first['e']['fromdate']} {P.dutch_floats(first['e']['price'])}
+Laatste 💡 : {last['e']['fromdate']} {P.dutch_floats(last['e']['price'])}
+Eerste  🔥 : {first['g']['fromdate']} {P.dutch_floats(first['g']['price'])}
+Laatste 🔥 : {last['g']['fromdate']} {P.dutch_floats(last['g']['price'])}
+Uptime     : {self.secondsToText(seconds)}
+Users      : {users}
+CPU load   : {self.get_cpu_usage_pct()}%
+RAM usage  : {int(self.get_ram_usage() / 1024 / 1024)} MB
 """
             sysinfo = escape_markdown(sysinfo, version=2)
-            msg = f"""
+            msg_sysinfo = f"""
 
 Systeem informatie:
 ```
 {sysinfo}
-```
-Dit systeem is gebouwd onder MIT license\. Je kan de code op Github vinden 'Energie\-Prijzen\-Bot\-2\.0'
-"""
-            return msg
+```"""
+            msg_end = escape_markdown( """Dit systeem is gebouwd onder MIT license. Je kan de code op Github vinden 'Energie-Prijzen-Bot-2.0'""", version=2)
+
+            return msg_sysinfo + msg_end
 
         except Exception as e:
             log.error(e)
+            return "Oeps er ging iets fout!"
 
     def fileSize(self, filePath):
         try:

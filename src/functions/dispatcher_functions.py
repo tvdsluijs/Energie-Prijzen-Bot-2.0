@@ -1,4 +1,4 @@
-import os,sys
+import os
 from datetime import datetime, timedelta
 from time import time
 import telegram
@@ -11,6 +11,7 @@ from functions.api_energyzero import EnergieZero_API
 from functions.api_entsoe import Entsoe_API
 from functions.api_frankenergie import FrankEnergie_API
 from functions.help import Help
+from functions.onderhoud import Onderhoud
 from functions.prices import Prices
 from functions.systeem import Systeem
 from functions.tweet import Tweet
@@ -92,12 +93,31 @@ class Dispatcher_Functions(object):
         except Exception as e:
             log.error(e, exc_info=True)
 
+    def onderhoud(self, update: telegram.Update, context: telegram.ext.CallbackContext)->None:
+        try:
+            O = Onderhoud()
+            if (msg := O.start(update=update, context=context)):
+                U = Users()
+                ids = U.get_users(dbname=self.dbname)
+                del U
+
+                if ids:
+                    for id in ids:
+                        if id == 0:
+                            continue
+                        context.bot.send_message(chat_id=id, text=msg)
+
+            del O
+        except Exception as e:
+            log.error(e)
+            return False
+
     def show_current(self, update: telegram.Update, context: telegram.ext.CallbackContext):
         try:
             P = Prices(dbname=self.dbname)
             if not (msg := P.get_cur_price()):
                 msg = "Sorry er ging iets fout"
-            context.bot.send_message(chat_id=update.message.chat_id, text=msg, parse_mode=ParseMode.MARKDOWN_V2)
+            context.bot.send_message(chat_id=update.message.chat_id, text=escape_markdown(msg, version=2), parse_mode=ParseMode.MARKDOWN_V2)
         except Exception as e:
             log.error(e, exc_info=True)
 
@@ -331,7 +351,7 @@ class Dispatcher_Functions(object):
                     for id in ids:
                         if id == 0:
                             continue
-                        context.bot.send_message(chat_id=id, text=prijs_message['msg'], parse_mode=ParseMode.MARKDOWN_V2)
+                        context.bot.send_message(chat_id=id, text=escape_markdown(prijs_message['msg'], version=2), parse_mode=ParseMode.MARKDOWN_V2)
         except Exception as e:
             log.error(e, exc_info=True)
 
@@ -350,7 +370,7 @@ class Dispatcher_Functions(object):
                     for id in ids:
                         if id == 0:
                             continue
-                        context.bot.send_message(chat_id=id, text=prijs_message['msg'], parse_mode=ParseMode.MARKDOWN_V2)
+                        context.bot.send_message(chat_id=id, text=escape_markdown(prijs_message['msg'], version=2), parse_mode=ParseMode.MARKDOWN_V2)
         except Exception as e:
             log.error(e, exc_info=True)
 
@@ -437,7 +457,6 @@ class Dispatcher_Functions(object):
                         continue
                     telebot = msg + " Meer prijzen zien? /vandaag"
                     context.bot.send_message(chat_id=id, text=telebot)
-
         except Exception as e:
             log.error(e, exc_info=True)
 

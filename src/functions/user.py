@@ -19,7 +19,7 @@ class Users(UsersSQL):
             if self._add_user(user_id=user_id):
                 if msg:
                     return """U bent toegevoegd aan het systeem!
-U krijgt rond 8 uur en rond 16 uur een autmatisch prijzen bericht.
+U krijgt rond 8 uur en rond 16 uur een automatisch prijzen bericht.
 U krijg ook bericht wanneer de prijzen onder de 0.001 zakt."""
                 else:
                     return True

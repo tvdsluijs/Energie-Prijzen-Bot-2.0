@@ -1,6 +1,7 @@
 from decimal import Decimal
 import os
 import logging
+from telegram.utils.helpers import escape_markdown
 
 from datetime import datetime, timedelta
 
@@ -53,7 +54,7 @@ class Prices(PricesSQL):
 
             return f"""
 Inkoopprijzen van {elect['fromtime']} tot {self.next_hour(hour=time)}
-⚡ {elect_price}
+💡 {elect_price}
 🔥 {gas_price}"""
 
         except Exception as e:
@@ -95,7 +96,7 @@ Inkoopprijzen van {elect['fromtime']} tot {self.next_hour(hour=time)}
             int_hour_high = int(fromtime_high[:2]) + 1
             totime_low = f"{int_hour_low:02d}:00"
             totime_hight = f"{int_hour_high:02d}:00"
-            return f"Vandaag is de inkoopprijs van stroom per kWh het laagst tussen {fromtime_low} en {totime_low} ({low_price}) en het hoogst tussen {totime_hight} en {fromtime_high} ({high_price})"
+            return f"Vandaag is de inkoopprijs van 💡 per kWh het laagst tussen {fromtime_low} en {totime_low} ({low_price}) en het hoogst tussen {totime_hight} en {fromtime_high} ({high_price})"
         except Exception as e:
             log.error(e, exc_info=True)
             return False
@@ -104,7 +105,7 @@ Inkoopprijzen van {elect['fromtime']} tot {self.next_hour(hour=time)}
         try:
             data = self._get_next_hour_price(date=date, next_hour=next_hour,kind=kind)
             prijs = data['price']
-            msg = f"Om {next_hour} gaat de prijs naar {self.dutch_floats(prijs)}"
+            msg = f"Om {next_hour} gaat de 💡 prijs naar {self.dutch_floats(prijs)}"
             return {'prijs': prijs, 'msg': msg}
         except Exception as e:
             log.error(e, exc_info=True)
@@ -147,7 +148,7 @@ Inkoopprijzen van {elect['fromtime']} tot {self.next_hour(hour=time)}
     def totaal_overzicht(self, data:list=None, date:str=None)->str:
         try:
             msg_elect = f"""{self.get_nice_day(date=date)}
-Prijzen ⚡"""
+Prijzen 💡"""
             msg_gas =  f"Prijzen 🔥"
             gas_voor = ""
             gas_na = ""
@@ -173,11 +174,11 @@ Prijzen ⚡"""
 
             msg = f"""{msg_elect}```
 
-{elec}```
+{escape_markdown(elec, version=2)}```
 {msg_gas}
 ```
-{gas_voor}
-{gas_na}```"""
+{escape_markdown(gas_voor, version=2)}
+{escape_markdown(gas_na, version=2)}```"""
             return msg
         except KeyError as e:
             # Some prices not here, so return
@@ -200,6 +201,19 @@ Prijzen ⚡"""
         except Exception as e:
             log.error(e, exc_info=True)
             return self.foutmelding
+
+    def get_first_price(self):
+        try:
+            return self._get_first_price()
+        except Exception as e:
+            log.error(e, exc_info=True)
+
+    def get_last_price(self):
+        try:
+            return self._get_last_price()
+        except Exception as e:
+            log.error(e, exc_info=True)
+
 
     def get_nice_day(self, date:str = None) -> str:
             try:
@@ -227,7 +241,7 @@ Prijzen ⚡"""
     def next_hour(hour:str= None)->str:
         try:
             if hour is None:
-                raise Exception('Geen uur meegegevens!')
+                raise Exception('Geen uur mee gegeven')
             int_hour = int(hour[:2]) + 1
             return f"{int_hour:02d}:00"
         except Exception as e:

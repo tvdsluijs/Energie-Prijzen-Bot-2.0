@@ -151,3 +151,48 @@ Group by fromdate );"""
         except Exception as e:
             log.error(e)
             return False
+
+    def _get_first_price(self)->dict:
+        try:
+            self._connection()
+            cur = self._conn.cursor()
+            prijzen = {}
+            kinds = ['e','g']
+            for kind in kinds:
+                SQL =  f"""SELECT *
+FROM energy
+where kind = ?
+ORDER BY fromdate ASC, fromtime ASC
+LIMIT 1;"""
+                output_obj = cur.execute(SQL, (kind, ))
+                prijzen[kind] = output_obj.fetchone()
+
+            return prijzen
+        except IntegrityError:
+            return False
+        except Exception as e:
+            log.error(e)
+            return False
+
+
+    def _get_last_price(self)->dict:
+        try:
+            self._connection()
+            cur = self._conn.cursor()
+            prijzen = {}
+            kinds = ['e','g']
+            for kind in kinds:
+                SQL =  f"""SELECT *
+FROM energy
+where kind = ?
+ORDER BY fromdate DESC, fromtime DESC
+LIMIT 1;"""
+                output_obj = cur.execute(SQL, (kind, ))
+                prijzen[kind] = output_obj.fetchone()
+
+            return prijzen
+        except IntegrityError:
+            return False
+        except Exception as e:
+            log.error(e)
+            return False

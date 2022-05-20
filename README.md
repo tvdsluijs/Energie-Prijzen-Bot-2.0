@@ -92,6 +92,9 @@ info@itheo.tech
 
 ## Versiegeschiedenis
 
+20th mei, 2022 - versie: 2.0.3 
+- Bug fixes, verbetering systeem info, onderhoudsmode ingebouwd 
+
 18th mei, 2022 - versie: 2.0.2 
 - Wat kleine bugfixes en verbetering van DEV ACC PROD 
 

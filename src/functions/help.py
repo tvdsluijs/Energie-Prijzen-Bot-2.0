@@ -45,6 +45,9 @@ Wil je meer informatie of hulp?
 Hoi {name},
 Je zoekt hulp
 
+💡 Stroom prijzen
+🔥 Gas prijzen
+
 Handmatige berichten
 /nu → huidige prijzen
 /vandaag → Alle prijzen vandaag

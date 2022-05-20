@@ -54,6 +54,10 @@ class Dispatcher(Dispatcher_Functions):
             tomorrow_handler = CommandHandler('morgen', self.show_tomorrow)
             u.dispatcher.add_handler(tomorrow_handler)
 
+            onderhoud_handler = CommandHandler('morgen', self.onderhoud)
+            u.dispatcher.add_handler(onderhoud_handler)
+
+
             # highprice_handler = CommandHandler('hoog', self.show_highprices)
             # u.dispatcher.add_handler(highprice_handler)
 
