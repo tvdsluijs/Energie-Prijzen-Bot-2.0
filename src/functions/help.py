@@ -2,6 +2,7 @@ import os
 import logging
 
 import telegram
+from telegram.utils.helpers import escape_markdown
 
 PY_ENV = os.getenv('PY_ENV', 'dev')
 log = logging.getLogger(PY_ENV)
@@ -41,9 +42,9 @@ Wil je meer informatie of hulp?
             name = username
         else:
             name = first_name
-        return f"""
-Hoi {name},
-Je zoekt hulp
+
+        msg = f"""
+Hoi {name}, hier is hulp
 
 💡 Stroom prijzen
 🔥 Gas prijzen
@@ -58,23 +59,25 @@ Handmatige berichten
 Voor automatische berichten:
 /a → aanmelden
 /v → verwijder je gegevens
-/i → je instellingen
+/i → jouw instellingen
 
 /o aan 9 → ochtend melding 9 uur
 /m aan 15 → middag melding 15 uur
 
-/s → systeem informatie
-
-/d → donatie! Ja graag!!
-
-Wil je nog meer hulp? Die krijg je door help er achter te zetten
-
+Wil je meer hulp? Zet er help achter
 /a help
 /i help
-/o help
-
 enz.
 """
+        msg = escape_markdown(msg, version=2)
+
+        msg = msg + """
+[Doneren? Ja graag](https://donorbox.org/tvdsluijs-github)
+
+Vragen? @tvdsluijs of ga naar mijn [Github pagina](https://github.com/tvdsluijs/Energie-Prijzen-Bot-2.0)
+
+"""
+        return msg
 
     @staticmethod
     def systeem_help()->str:

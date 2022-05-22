@@ -13,12 +13,16 @@ from functions.api_frankenergie import FrankEnergie_API
 from functions.help import Help
 from functions.onderhoud import Onderhoud
 from functions.prices import Prices
+from functions.stuur_bericht import StuurBericht
 from functions.systeem import Systeem
 from functions.tweet import Tweet
 from functions.user import Users
 
 PY_ENV = os.getenv('PY_ENV', 'dev')
 log = logging.getLogger(PY_ENV)
+
+class UnKnownException(Exception):
+    pass
 
 class Dispatcher_Functions(object):
     def __init__(self, *args, **kwargs) -> None:
@@ -37,7 +41,7 @@ class Dispatcher_Functions(object):
 
             self.twitter_ochtend_hour = 8
             self.twitter_middag_hour = 15
-
+            self.kweetniet = "Sorry dit commando begrijp ik niet."
             self.hashtags = "\n #energie #energieprijzen #energietarieven #gasprijs"
 
             self.date_hours = []
@@ -86,36 +90,49 @@ class Dispatcher_Functions(object):
 
     def start_me_up(self, update: telegram.Update, context: telegram.ext.CallbackContext) -> None:
         try:
-            H = Help()
-            msg = H.start_text(update=update)
-            del H
+            msg = Help.start_text(update=update)
             context.bot.send_message(chat_id=update.message.chat_id, text=msg)
+        except Exception as e:
+            log.error(e, exc_info=True)
+
+    def bericht(self, update: telegram.Update, context: telegram.ext.CallbackContext)->None:
+        try:
+            if int(update.message.chat_id) not in self.admin_ids:
+                msg = "Sorry ik weet niet wat u bedoelt"
+                context.bot.send_message(chat_id=update.message.chat_id, text=msg)
+                return
+
+            try:
+                msg  = ' '.join(context.args)
+            except IndexError:
+                return False
+            except Exception:
+                return False
+
+            if msg is not None and msg != "":
+                StuurBericht(dbname=self.dbname)._alle_gebuikers(context=context,msg=msg)
+
         except Exception as e:
             log.error(e, exc_info=True)
 
     def onderhoud(self, update: telegram.Update, context: telegram.ext.CallbackContext)->None:
         try:
-            O = Onderhoud()
-            if (msg := O.start(update=update, context=context)):
-                U = Users()
-                ids = U.get_users(dbname=self.dbname)
-                del U
+            if int(update.message.chat_id) not in self.admin_ids:
+                raise UnKnownException(self.kweetniet)
 
-                if ids:
-                    for id in ids:
-                        if id == 0:
-                            continue
-                        context.bot.send_message(chat_id=id, text=msg)
+            if (msg := Onderhoud().start(context=context)):
+                StuurBericht(dbname=self.dbname)._alle_gebuikers(context=context,msg=msg)
+            else:
+                raise UnKnownException(Onderhoud()._kweetnie)
 
-            del O
+        except UnKnownException as msg:
+            context.bot.send_message(chat_id=update.message.chat_id, text=msg)
         except Exception as e:
-            log.error(e)
-            return False
+            log.error(e, exc_info=True)
 
     def show_current(self, update: telegram.Update, context: telegram.ext.CallbackContext):
         try:
-            P = Prices(dbname=self.dbname)
-            if not (msg := P.get_cur_price()):
+            if not (msg := Prices(dbname=self.dbname).get_cur_price()):
                 msg = "Sorry er ging iets fout"
             context.bot.send_message(chat_id=update.message.chat_id, text=escape_markdown(msg, version=2), parse_mode=ParseMode.MARKDOWN_V2)
         except Exception as e:
@@ -123,8 +140,7 @@ class Dispatcher_Functions(object):
 
     def show_today(self, update: telegram.Update, context: telegram.ext.CallbackContext):
         try:
-            P = Prices(dbname=self.dbname)
-            if not (msg := P.vandaag_prices()):
+            if not (msg := Prices(dbname=self.dbname).vandaag_prices()):
                 msg = "Sorry er ging iets fout"
             context.bot.send_message(chat_id=update.message.chat_id, text=msg, parse_mode=ParseMode.MARKDOWN_V2)
         except Exception as e:
@@ -132,14 +148,14 @@ class Dispatcher_Functions(object):
 
     def show_tomorrow(self, update: telegram.Update, context: telegram.ext.CallbackContext):
         try:
-            P = Prices(dbname=self.dbname)
-            if not (msg := P.morgen_prices()):
+            if not (msg := Prices(dbname=self.dbname).morgen_prices()):
                 msg = "Er zijn op dit moment nog geen prijzen voor morgen"
             context.bot.send_message(chat_id=update.message.chat_id, text=msg, parse_mode=ParseMode.MARKDOWN_V2)
         except Exception as e:
             log.error(e, exc_info=True)
 
     def show_highprices(self, update: telegram.Update, context: telegram.ext.CallbackContext):
+        """Deze functie doet nog ff niks"""
         try:
             return
             context.bot.send_message(chat_id=update.message.chat_id, text=msg, parse_mode=ParseMode.MARKDOWN_V2)
@@ -148,6 +164,7 @@ class Dispatcher_Functions(object):
         pass
 
     def show_lowprices(self, update: telegram.Update, context: telegram.ext.CallbackContext):
+        """Deze functie doet nog ff niks"""
         try:
             return
             context.bot.send_message(chat_id=update.message.chat_id, text=msg, parse_mode=ParseMode.MARKDOWN_V2)
@@ -157,10 +174,10 @@ class Dispatcher_Functions(object):
 
     def help(self, update: telegram.Update, context: telegram.ext.CallbackContext) -> None:
         try:
-            H = Help()
-            msg = H.help_text(update=update)
-            del H
-            context.bot.send_message(chat_id=update.message.chat_id, text=msg)
+            msg = Help.help_text(update=update)
+            context.bot.send_message(chat_id=update.message.chat_id,
+                                     text=msg, parse_mode=ParseMode.MARKDOWN_V2,
+                                     disable_web_page_preview=True)
         except Exception as e:
             log.error(e, exc_info=True)
 
@@ -168,41 +185,35 @@ class Dispatcher_Functions(object):
         try:
             try:
                 if context.args[0] == 'help':
-                    H = Help()
-                    msg = H.donatie_help()
+                    msg = Help.donatie_help()
                 else:
                     raise IndexError
             except IndexError:
                 msg = "https://donorbox.org/tvdsluijs-github"
 
-            context.bot.send_message(chat_id=update.message.chat_id, text=msg)
+            context.bot.send_message(chat_id=update.message.chat_id, text=msg,
+                                     disable_web_page_preview=True)
         except Exception as e:
             log.error(e, exc_info=True)
 
     def systeminfo(self, update: telegram.Update, context: telegram.ext.CallbackContext):
         try:
+            msg = None
             try:
                 if context.args[0] == 'help':
-                    H = Help()
-                    msg = H.systeem_help()
-                else:
-                    raise IndexError
+                    msg = escape_markdown(Help.systeem_help(), version=2)
             except IndexError:
+                pass
+
+            if msg is None or msg == "":
                 versie_path = os.path.join(self.path, "VERSION.TXT")
                 version = open(versie_path, "r").read().replace('\n','')
                 seconds = int(time()) - int(self.startTime)
-
-                U = Users(dbname=self.dbname)
-                users = len(U.get_users())
-                del U
-
-                S = Systeem()
-
-                msg = S.systeminfo_msg(version=version, users=users, seconds=seconds, dbname=self.dbname)
-                del S
+                users = len(Users(dbname=self.dbname).get_users())
+                msg = Systeem().systeminfo_msg(version=version, users=users, seconds=seconds, dbname=self.dbname)
 
             context.bot.send_message(chat_id=update.message.chat_id, text=msg, parse_mode=ParseMode.MARKDOWN_V2)
-            # context.bot.send_message(chat_id=update.message.chat_id, text=escape_markdown(text=msg, version=2), parse_mode=ParseMode.MARKDOWN_V2)
+
         except Exception as e:
             log.error(e, exc_info=True)
 
@@ -210,20 +221,15 @@ class Dispatcher_Functions(object):
         try:
             try:
                 if context.args[0] == 'help':
-                    H = Help()
-                    msg = H.aanmelden_help()
+                    msg = Help.aanmelden_help()
                 else:
                     raise IndexError
             except IndexError:
-
-                U = Users(dbname=self.dbname)
-                user = U.get_user(user_id=update.message.chat_id)
+                user = Users(dbname=self.dbname).get_user(user_id=update.message.chat_id)
                 if user and user['user_id']:
                     msg = "U staat al in het systeem!"
                 else:
-                    msg = U.save_user(user_id=update.message.chat_id, msg=True)
-
-                del U
+                    msg = Users(dbname=self.dbname).save_user(user_id=update.message.chat_id, msg=True)
 
             context.bot.send_message(chat_id=update.message.chat_id, text=msg)
         except KeyError as e:
@@ -233,21 +239,19 @@ class Dispatcher_Functions(object):
 
     def verwijderme(self, update: telegram.Update, context: telegram.ext.CallbackContext) -> None:
         try:
+            msg = None
             try:
                 if context.args[0] == 'help':
-                    H = Help()
-                    msg = H.afmelden_help()
-                else:
-                    raise IndexError
+                    msg = Help.afmelden_help()
             except IndexError:
-                U = Users(dbname=self.dbname)
-                user = U.get_user(user_id=update.message.chat_id)
+                pass
+
+            if msg is None or msg == "":
+                user = Users(dbname=self.dbname).get_user(user_id=update.message.chat_id)
                 if not user or user['user_id'] < 0:
                     msg = "U staat niet in het systeem!"
                 else:
-                    msg = U.del_user(user_id=update.message.chat_id, msg=True)
-
-                del U
+                    msg = Users(dbname=self.dbname).del_user(user_id=update.message.chat_id, msg=True)
 
             context.bot.send_message(chat_id=update.message.chat_id, text=msg)
         except KeyError as e:
@@ -257,17 +261,17 @@ class Dispatcher_Functions(object):
 
     def instellingen(self, update: telegram.Update, context: telegram.ext.CallbackContext) -> None:
         try:
+            msg = None
             try:
                 if context.args[0] == 'help':
-                    H = Help()
-                    msg = H.get_instellingen_help()
+                    msg = Help.get_instellingen_help()
             except IndexError:
-                U = Users(dbname=self.dbname)
-                user = U.get_user(user_id=update.message.chat_id)
-                if not (msg := U.get_instellingen(user=user)):
-                    msg = "Sorry er ging iets fout!"
+                pass
 
-                del U
+            if msg is None or msg == "":
+                user = Users(dbname=self.dbname).get_user(user_id=update.message.chat_id)
+                if not (msg := Users(dbname=self.dbname).get_instellingen(user=user)):
+                    msg = "Sorry er ging iets fout!"
 
             context.bot.send_message(chat_id=update.message.chat_id, text=msg)
         except Exception as e:
@@ -275,14 +279,15 @@ class Dispatcher_Functions(object):
 
     def ochtend_instellen(self, update: telegram.Update, context: telegram.ext.CallbackContext) -> None:
         try:
+            msg = None
             try:
                 if context.args[0] == 'help':
-                    H = Help()
-                    msg = H.ochtend_instellen_help()
+                    msg = Help.ochtend_instellen_help()
             except IndexError:
-                U = Users(dbname=self.dbname)
-                msg = U.set_ochtend(context=context, user_id=update.message.chat_id)
-                del U
+                pass
+
+            if msg is None or msg == "":
+                msg = Users(dbname=self.dbname).set_ochtend(context=context, user_id=update.message.chat_id)
 
             context.bot.send_message(chat_id=update.message.chat_id, text=msg)
         except Exception as e:
@@ -290,46 +295,47 @@ class Dispatcher_Functions(object):
 
     def ld_instellen(self, update: telegram.Update, context: telegram.ext.CallbackContext) -> None:
         try:
+            msg = None
             try:
                 if context.args[0] == 'help':
-                    H = Help()
-                    msg = H.ld_instellen_help()
+                    msg = Help.ld_instellen_help()
             except IndexError:
-                U = Users(dbname=self.dbname)
-                msg = U.set_middag(context=context, user_id=update.message.chat_id)
-                del U
+                pass
+
+            if msg is None or msg == "":
+                msg = Users(dbname=self.dbname).set_middag(context=context, user_id=update.message.chat_id)
 
             context.bot.send_message(chat_id=update.message.chat_id, text=msg)
         except Exception as e:
             log.error(e, exc_info=True)
-
 
     def hd_instellen(self, update: telegram.Update, context: telegram.ext.CallbackContext) -> None:
         try:
+            msg = None
             try:
                 if context.args[0] == 'help':
-                    H = Help()
-                    msg = H.hd_instellen_help()
+                    msg = Help.hd_instellen_help()
             except IndexError:
-                U = Users(dbname=self.dbname)
-                msg = U.set_middag(context=context, user_id=update.message.chat_id)
-                del U
+                pass
+
+            if msg is None or msg == "":
+                msg = Users(dbname=self.dbname).set_middag(context=context, user_id=update.message.chat_id)
 
             context.bot.send_message(chat_id=update.message.chat_id, text=msg)
         except Exception as e:
             log.error(e, exc_info=True)
 
-
     def middag_instellen(self, update: telegram.Update, context: telegram.ext.CallbackContext) -> None:
         try:
+            msg = None
             try:
                 if context.args[0] == 'help':
-                    H = Help()
-                    msg = H.middag_instellen_help()
+                    msg = Help.middag_instellen_help()
             except IndexError:
-                U = Users(dbname=self.dbname)
-                msg = U.set_middag(context=context, user_id=update.message.chat_id)
-                del U
+                pass
+
+            if msg is None or msg == "":
+                msg = Users(dbname=self.dbname).set_middag(context=context, user_id=update.message.chat_id)
 
             context.bot.send_message(chat_id=update.message.chat_id, text=msg)
         except Exception as e:
@@ -337,21 +343,15 @@ class Dispatcher_Functions(object):
 
     def onder_bedrag_melding(self, context: telegram.ext.CallbackContext)->None:
         try:
-
             next_hour_ts = datetime.now()+ timedelta(hours=+1)
             next_hour = next_hour_ts.strftime("%H:00")
             now = datetime.now()
             date = now.strftime("%Y-%m-%d")
 
-            P = Prices(dbname=self.dbname)
-            if (prijs_message := P.get_next_hour_price(date=date, next_hour=next_hour, kind=1)):
-                U = Users(dbname=self.dbname)
-                ids = U.get_lower_price_users(price=prijs_message['prijs'])
-                if ids:
-                    for id in ids:
-                        if id == 0:
-                            continue
-                        context.bot.send_message(chat_id=id, text=escape_markdown(prijs_message['msg'], version=2), parse_mode=ParseMode.MARKDOWN_V2)
+            if (prijs_message := Prices(dbname=self.dbname).get_next_hour_price(date=date, next_hour=next_hour, kind=1)):
+                if (ids := Users(dbname=self.dbname).get_lower_price_users(price=prijs_message['prijs'])):
+                    msg = escape_markdown(prijs_message['msg'])
+                    StuurBericht(dbname=self.dbname)._bepaalde_gebruikers_md(context=context, msg=msg, ids=ids)
         except Exception as e:
             log.error(e, exc_info=True)
 
@@ -362,15 +362,11 @@ class Dispatcher_Functions(object):
             now = datetime.now()
             date = now.strftime("%Y-%m-%d")
 
-            P = Prices(dbname=self.dbname)
-            if (prijs_message := P.get_next_hour_price(date=date, next_hour=next_hour, kind=1)):
-                U = Users(dbname=self.dbname)
-                ids = U.get_higher_price_users(price=prijs_message['prijs'])
-                if ids:
-                    for id in ids:
-                        if id == 0:
-                            continue
-                        context.bot.send_message(chat_id=id, text=escape_markdown(prijs_message['msg'], version=2), parse_mode=ParseMode.MARKDOWN_V2)
+            if (prijs_message := Prices(dbname=self.dbname).get_next_hour_price(date=date, next_hour=next_hour, kind=1)):
+                if (ids := Users(dbname=self.dbname).get_higher_price_users(price=prijs_message['prijs'])):
+                    msg = escape_markdown(prijs_message['msg'])
+                    StuurBericht(dbname=self.dbname)._bepaalde_gebruikers_md(context=context, msg=msg, ids=ids)
+
         except Exception as e:
             log.error(e, exc_info=True)
 
@@ -379,8 +375,7 @@ class Dispatcher_Functions(object):
             morgen_ts = datetime.now() + timedelta(days=+1)
             morgen = morgen_ts.strftime("%Y-%m-%d")
 
-            P = Prices(dbname=self.dbname)
-            data = P.morgen_prices_data(date=morgen)
+            data = Prices(dbname=self.dbname).morgen_prices_data(date=morgen)
             el_prices = 0
             try:
                 for d in data:
@@ -390,25 +385,16 @@ class Dispatcher_Functions(object):
 
                 # No electric prices yet, so return
                 if el_prices == 0:
-                    return False
+                    raise KeyError
 
             except KeyError as e:
                 return False
 
-            U = Users(dbname=self.dbname)
-            ids = U.get_middag_users(hour=hour)
-            ids.append(0)
-            del U
-            if ids:
-                #get morgen message
-                if not (msg := P.morgen_prices(data=data)):
-                    return False
-                for id in ids:
-                    if id == 0:
-                        continue
-                    context.bot.send_message(chat_id=id, text=msg, parse_mode=ParseMode.MARKDOWN_V2)
-
-            del P
+            #get morgen message
+            if not (msg := Prices(dbname=self.dbname).morgen_prices(data=data)):
+                return False
+            if (ids := Users(dbname=self.dbname).get_middag_users(hour=hour)):
+                StuurBericht(dbname=self.dbname)._bepaalde_gebruikers_md(context=context, msg=msg, ids=ids)
 
             # Lengte van bericht is 416 dus veel te lang om op twitter te laten zien
             # Dus laten we het per uur zien! Zie functie tweet_current
@@ -421,84 +407,82 @@ class Dispatcher_Functions(object):
             log.error(e, exc_info=True)
 
     def tweet_current(self)->None:
+        """Functie om huidige prijzen naar twitter te sturen"""
         try:
-            P = Prices(dbname=self.dbname)
-            if not (msg := P.get_cur_price()):
+            if not (msg := Prices(dbname=self.dbname).get_cur_price()):
                 return False
 
             msg = msg + " " + self.hashtags
-            T = Tweet(config=self.config)
-            T.tweettie(msg=msg)
-            del T
+            Tweet(config=self.config).tweettie(msg=msg)
         except Exception as e:
             log.error(e, exc_info=True)
 
     def ochtend_melding(self, context: telegram.ext.CallbackContext, hour:int=8)->None:
         try:
-            U = Users(dbname=self.dbname)
-            ids = U.get_ochtend_users(hour=hour)
-            ids.append(0)
-            del U
             #get ochtend message
-            P = Prices(dbname=self.dbname)
-            if not (msg := P.ochtend_prices()):
+            if not (msg := Prices(dbname=self.dbname).ochtend_prices()):
                 raise Exception('Geen ochtend prijzen op kunnen halen')
-            del P
 
             if hour == self.twitter_ochtend_hour:
                 tweet = msg + " Meer zien? Volg de telegram bot! https://t.me/EnergiePrijzen_bot " + self.hashtags
-                T = Tweet(config=self.config)
-                T.tweettie(msg=tweet)
-                del T
+                Tweet(config=self.config).tweettie(msg=tweet)
 
-            if ids:
-                for id in ids:
-                    if id == 0:
-                        continue
-                    telebot = msg + " Meer prijzen zien? /vandaag"
-                    context.bot.send_message(chat_id=id, text=telebot)
+            if (ids := Users(dbname=self.dbname).get_ochtend_users(hour=hour)):
+                msg = msg + " Meer prijzen zien? /vandaag"
+                StuurBericht(dbname=self.dbname)._bepaalde_gebuikers(context=context, msg=msg, ids=ids)
         except Exception as e:
             log.error(e, exc_info=True)
 
     def process_new_prices(self)->bool:
         try:
-            P = Prices(dbname=self.dbname)
-
             #stroom = 1, gas = 2
-            # Gas ophalen bij ernergyzero
-            EZ = EnergieZero_API()
-            if (data := EZ.get_data(kind=2)):
-                del EZ
-                pass
-            else:
-                FE = FrankEnergie_API()
-                if (data := FE.get_data(kind=2)): #gas ophalen bij Frank
-                    del FE
-                    pass
-            P.add_prices(data=data) #opslaan gasprijzen!
+            self.process_gas()
 
-            # Electra ophalen bij entsoe
-            EN = Entsoe_API()
-            if (data := EN.get_data(entsoe_key=self.entsoe_key)):
-                del EN
-                pass
-            #wanneer er geen data is dan bij frankenergie ophalen.
-            else:
-                FE = FrankEnergie_API()
-                if (data := FE.get_data(kind=1)):
-                    del FE
-                    pass
-                else:
-                    #wanneer er geen data is dan bij energyzero ophalen.
-                    EZ = EnergieZero_API()
-                    if (data := EZ.get_data(kind=1)):
-                        del EZ
-                        pass
-
-            P.add_prices(data=data) #opslaan electra prijzen
+            self.process_electra()
 
         except Exception as e:
             log.error(e, exc_info=True)
+
+    def process_gas(self)->bool:
+        try:
+            #stroom = 1, gas = 2
+            # Gas ophalen bij ernergyzero
+            if (data := EnergieZero_API().get_data(kind=2)):
+                pass
+            elif (data := FrankEnergie_API().get_data(kind=2)): #gas ophalen bij Frank
+                pass
+            else:
+                raise Exception('Geen Gasprijzen?')
+            #opslaan gasprijzen!
+            if not Prices(dbname=self.dbname).add_prices(data=data):
+                raise Exception('Gas opslaan fout!')
+
+            return True
+        except Exception as e:
+            log.error(e, exc_info=True)
+            return False
+
+    def process_electra(self)->bool:
+        try:
+            #stroom = 1, gas = 2
+            # Electra ophalen bij entsoe
+            if (data := Entsoe_API().get_data(entsoe_key=self.entsoe_key)):
+                pass
+            #wanneer er geen data is dan bij frankenergie ophalen.
+            elif (data := FrankEnergie_API().get_data(kind=1)):
+                pass
+            elif (data := EnergieZero_API().get_data(kind=1)):
+                pass
+            else:
+                raise Exception('Geen electra prijzen?')
+             #opslaan electra prijzen
+            if not Prices(dbname=self.dbname).add_prices(data=data):
+                raise Exception('Electra opslaan fout!')
+
+            return True
+        except Exception as e:
+            log.error(e, exc_info=True)
+            return False
 
     def check_run_now(self)->bool:
         try:

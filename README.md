@@ -92,6 +92,9 @@ info@itheo.tech
 
 ## Versiegeschiedenis
 
+22th mei, 2022 - versie: 2.0.4 
+- Code cleanup, berichten verkeer anders gebouwd, admin kan nu ook iedereen een bericht sturen 
+
 20th mei, 2022 - versie: 2.0.3 
 - Bug fixes, verbetering systeem info, onderhoudsmode ingebouwd 
 

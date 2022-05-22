@@ -66,28 +66,36 @@ U ontvangt geen berichten meer. U kunt nog wel gebruik maken van deze Bot.
 
     def get_ochtend_users(self, hour:int=8)->list:
         try:
-            return self._get_ochtend_users(hour=hour)
+            ids =  self._get_ochtend_users(hour=hour)
+            ids.append(0)
+            return ids
         except Exception as e:
             log.error(e, exc_info=True)
             return False
 
     def get_middag_users(self, hour:int=15)->list:
         try:
-            return self._get_middag_users(hour=hour)
+            ids = self._get_middag_users(hour=hour)
+            ids.append(0)
+            return ids
         except Exception as e:
             log.error(e, exc_info=True)
             return False
 
     def get_lower_price_users(self, price:float=0.001)->list:
         try:
-            return self._get_lower_price_users(price=price)
+            ids = self._get_lower_price_users(price=price)
+            ids.append(0)
+            return ids
         except Exception as e:
             log.error(e, exc_info=True)
             return False
 
     def get_higher_price_users(self, price:float=0.200)->list:
         try:
-            return self._get_higher_price_users(price=price)
+            ids = self._get_higher_price_users(price=price)
+            ids.append(0)
+            return ids
         except Exception as e:
             log.error(e, exc_info=True)
             return False

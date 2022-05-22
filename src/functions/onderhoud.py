@@ -11,18 +11,15 @@ class Onderhoud:
     def __init__(self) -> None:
         pass
 
-    def start(self, update: telegram.Update, context: telegram.ext.CallbackContext)->str:
+    def start(self, context: telegram.ext.CallbackContext)->str:
         """Een functie waarmee je onderhoud aan of uit kan zetten"""
         """en een melding geeft naar alle gebruikers"""
         try:
 
             try:
-                aan_uit = self.context.args[0]
+                aan_uit = context.args[0]
             except IndexError:
-                msg = self._kweetnie()
-                context.bot.send_message(chat_id=update.message.chat_id, text=msg)
                 return False
-
 
             match aan_uit:
                 case 'aan':
