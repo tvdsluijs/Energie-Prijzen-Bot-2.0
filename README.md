@@ -92,6 +92,9 @@ info@itheo.tech
 
 ## Versiegeschiedenis
 
+22th mei, 2022 - versie: 2.0.5 
+- Kleine bug mbt live key en prod key 
+
 22th mei, 2022 - versie: 2.0.4 
 - Code cleanup, berichten verkeer anders gebouwd, admin kan nu ook iedereen een bericht sturen 
 

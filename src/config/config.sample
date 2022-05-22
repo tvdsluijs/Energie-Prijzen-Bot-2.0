@@ -9,7 +9,7 @@ dev_key:
 #acc bot
 acc_key:
 #live bot
-live_key:
+prod_key:
 
 admin_ids: int_1,int_2,int_3
 
