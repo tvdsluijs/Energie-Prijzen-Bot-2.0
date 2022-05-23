@@ -92,6 +92,9 @@ info@itheo.tech
 
 ## Versiegeschiedenis
 
+23th mei, 2022 - versie: 2.1.0 
+- Funding toegevoegd, op naar versie 2.1.0 
+
 23th mei, 2022 - versie: 2.0.9 
 - Users die de bot blokkeren leveren een probleem op. Workaround ingebouwd, hopelijk zo opgelost. 
 

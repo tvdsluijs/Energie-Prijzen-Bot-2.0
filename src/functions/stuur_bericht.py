@@ -38,7 +38,8 @@ class StuurBericht:
                     context.bot.send_message(chat_id=id, text=msg,
                                              disable_web_page_preview=True)
                 except Exception as e:
-                    log.warning(e, id)
+                    # als een user de Bot geblokkeerd heeft dan hier in springen en doorgaan
+                    log.error(e, id)
                     pass
 
             return True
@@ -55,9 +56,10 @@ class StuurBericht:
                 if id == 0:
                     continue
                 try:
+                    # als een user de Bot geblokkeerd heeft dan hier in springen en doorgaan
                     context.bot.send_message(chat_id=id, text=msg, parse_mode=ParseMode.MARKDOWN_V2)
                 except Exception as e:
-                    log.warning(e, id)
+                    log.error(e, id)
                     pass
             return True
         except Exception as e:
