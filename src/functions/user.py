@@ -100,7 +100,6 @@ U ontvangt geen berichten meer. U kunt nog wel gebruik maken van deze Bot.
             log.error(e, exc_info=True)
             return False
 
-
     def get_instellingen(self, user:dict = None)->str:
         try:
             if user is None or user['user_id'] < 0:
@@ -155,34 +154,32 @@ of
         aan_uit = None
         try:
             try:
-                if context.args[0] == 'aan' :
-                    aan_uit = 1
-                elif context.args[0] == 'uit':
+                if context.args[0] == 'uit':
                     aan_uit = 0
+                elif int(context.args[0]) in range(0,23):
+                    aan_uit = 1
                 else:
                     raise IndexError
-            except IndexError:
+            except (IndexError, ValueError):
                 return """Ik begrijp je niet
-Wil je iets doen zoals:
-/ochtend aan 8
+Ochtend melding instellen:
+/ochtend [uur / 0-23 ]
+
+bijvoorbeeld:
+/ochtend 8
+
+of om uit te zetten
 /ochtend uit
 """
-            except Exception as e:
-                log.error(e, exc_info=True)
+            if aan_uit == 1:
+                data = self._set_ochtend_user(user_id=user_id, hour=int(context.args[0]))
+                if data:
+                    return f"Je ontvangt vanaf nu ieder dag om ±{int(context.args[0])} uur de ochtend update"
+            elif aan_uit == 0:
+                data = self._set_ochtend_user(user_id=user_id, hour=None)
+                if data:
+                    return f"De ochtend melding is uitgezet"
 
-            try:
-                if aan_uit == 1:
-                    data = self._set_ochtend_user(user_id=user_id, hour=context.args[1])
-                elif aan_uit == 0:
-                    data = self._set_ochtend_user(user_id=user_id, hour=None)
-            except IndexError:
-                return """U bent een tijd vergeten
-/ochtend aan 8
-/ochtend aan 9
-"""
-            if data:
-                return "Uw ochtend melding is opgeslagen"
-            else:
                 return "Er ging iets fout"
 
         except Exception as e:
@@ -192,35 +189,92 @@ Wil je iets doen zoals:
         aan_uit = None
         try:
             try:
-                if context.args[0] == 'aan' :
-                    aan_uit = 1
-                elif context.args[0] == 'uit':
+                if context.args[0] == 'uit' :
                     aan_uit = 0
+                elif int(context.args[0]) in range(15,23):
+                    aan_uit = 1
                 else:
                     raise IndexError
+            except (IndexError, ValueError):
+                return """Ik begrijp je niet
+Middag melding instellen:
+/middag [uur / 15-23]
+
+Bijvoorbeeld
+/middag 16
+
+of om uit te zetten
+/middag uit
+"""
+
+            if aan_uit == 1:
+                data = self._set_middag_user(user_id=user_id, hour=int(context.args[0]))
+                if data:
+                    return f"Je ontvangt vanaf nu elke dag om ±{int(context.args[0])} uur de middag prijzen"
+            elif aan_uit == 0:
+                data = self._set_middag_user(user_id=user_id, hour=None)
+                if data:
+                    return f"De middag prijzen melding is uitgezet"
+
+            return "Er ging iets fout"
+
+        except Exception as e:
+            log.error(e, exc_info=True)
+
+    def set_lagerdan(self, context: telegram.ext.CallbackContext, user_id:int = None)->bool:
+        aan_uit = None
+        try:
+            try:
+                if context.args[0] == 'uit':
+                    aan_uit = 0
+                else:
+                    price = float(context.args[0].replace(',', '.'))
+                    aan_uit = 1
             except IndexError:
                 return """Ik begrijp je niet
 Wil je iets doen zoals:
-/middag aan 16
-/middag uit
+/lagerdan -0.10
+/lagerdan uit
 """
-            except Exception as e:
-                log.error(e, exc_info=True)
+            if aan_uit == 1:
+                data = self._set_lower_price_user(user_id=user_id, price=price)
+                if data:
+                    return f"Je ontvangt nu een melding als de prijs zakt onder de {price}"
+            elif aan_uit == 0:
+                data = self._set_lower_price_user(user_id=user_id, price=None)
+                if data:
+                    return f"Je automatische lager dan prijs melding staat nu uit."
 
+            return "Er ging iets fout"
+
+        except Exception as e:
+            log.error(e, exc_info=True)
+
+    def set_hogerdan(self, context: telegram.ext.CallbackContext, user_id:int = None)->bool:
+        aan_uit = None
+        try:
             try:
-                if aan_uit == 1:
-                    data = self._set_middag_user(user_id=user_id, hour=context.args[1])
-                elif aan_uit == 0:
-                    data = self._set_middag_user(user_id=user_id, hour=None)
+                if context.args[0] == 'uit':
+                    aan_uit = 0
+                else:
+                    price = float(context.args[0].replace(',', '.'))
+                    aan_uit = 1
             except IndexError:
-                return """U bent een tijd vergeten
-/middag aan 15
-/middag aan 14
+                return """Ik begrijp je niet
+Wil je iets doen zoals:
+/hogerdan 0.10
+/hogerdan uit
 """
-            if data:
-                return "Uw middag melding is opgeslagen"
-            else:
-                return "Er ging iets fout"
+            if aan_uit == 1:
+                data = self._set_higher_price_user(user_id=user_id, price=price)
+                if data:
+                    return f"Je ontvangt nu een melding als de prijs hoger is dan {price}"
+            elif aan_uit == 0:
+                data = self._set_higher_price_user(user_id=user_id, price=None)
+                if data:
+                    return f"Je automatische hoger dan prijs melding staat nu uit."
+
+            return "Er ging iets fout"
 
         except Exception as e:
             log.error(e, exc_info=True)

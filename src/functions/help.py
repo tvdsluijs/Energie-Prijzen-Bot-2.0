@@ -95,14 +95,14 @@ en je krijg wat info te zien!
 Wil je een hoog laag melding in de ochtend voor die dag?
 Zet hem aan via
 
-/o aan [uur]
+/o [uur]
 
 Wil je een melding om 8 uur
 
-/o aan 8
+/o 8
 
 Een melding om 10 uur
-/o aan 10
+/o 10
 
 Je kan maar 1 ochtend melding instellen!
 """
@@ -144,14 +144,14 @@ Uitzetten?
 Wil je automatisch een melding van de prijzen van morgen?
 Zet hem aan via
 
-/m aan [uur]
+/m [uur]
 
 Wil je een melding om 15 uur
 
-/o aan 15
+/m 15
 
 Een melding om 17 uur
-/o aan 17
+/m 17
 
 Je kan maar 1 middag melding instellen!
 """
@@ -160,11 +160,11 @@ Je kan maar 1 middag melding instellen!
     def get_instellingen_help()->str:
         return """
 Instellingen hulp
-/ochtend 8  →  update om 8 uur [1-11]
+/ochtend 8  →  update om 8 uur [1-12]
 /ochtend uit → update uit
 /middag 16 → prijzen morgen [16-23]
 /middag uit → prijzen morgen uit
-/lager 0.001 → melding prijs lager 0.001
+/lager -0.001 → melding prijs lager 0.001
 /lager uit → melding lager uit
 /hoger 0.10 → melding prijs hoger 0,10
 /hoger uit → hoger dan uit

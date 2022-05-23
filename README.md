@@ -92,6 +92,9 @@ info@itheo.tech
 
 ## Versiegeschiedenis
 
+23th mei, 2022 - versie: 2.0.6 
+- Ik was ff vergeten de hoger en lager functies te bouwen :-) daarnaast de ochtend en middag functien verbeterd met extra checks 
+
 22th mei, 2022 - versie: 2.0.5 
 - Kleine bug mbt live key en prod key 
 

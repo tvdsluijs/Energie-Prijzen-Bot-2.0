@@ -294,6 +294,7 @@ class Dispatcher_Functions(object):
             log.error(e, exc_info=True)
 
     def ld_instellen(self, update: telegram.Update, context: telegram.ext.CallbackContext) -> None:
+        """Lager Dan prijs instellen"""
         try:
             msg = None
             try:
@@ -303,13 +304,14 @@ class Dispatcher_Functions(object):
                 pass
 
             if msg is None or msg == "":
-                msg = Users(dbname=self.dbname).set_middag(context=context, user_id=update.message.chat_id)
+                msg = Users(dbname=self.dbname).set_lagerdan(context=context, user_id=update.message.chat_id)
 
             context.bot.send_message(chat_id=update.message.chat_id, text=msg)
         except Exception as e:
             log.error(e, exc_info=True)
 
     def hd_instellen(self, update: telegram.Update, context: telegram.ext.CallbackContext) -> None:
+        """Hoger Dan prijs instellen"""
         try:
             msg = None
             try:
@@ -319,7 +321,7 @@ class Dispatcher_Functions(object):
                 pass
 
             if msg is None or msg == "":
-                msg = Users(dbname=self.dbname).set_middag(context=context, user_id=update.message.chat_id)
+                msg = Users(dbname=self.dbname).set_hogerdan(context=context, user_id=update.message.chat_id)
 
             context.bot.send_message(chat_id=update.message.chat_id, text=msg)
         except Exception as e:

@@ -163,12 +163,29 @@ WHERE user_id = ?"""
             log.error(e)
             return False
 
-    def _set_lower(self, user_id:int = None, price:float = 0.001)->list:
-        pass
+    def _set_lower_price_user(self, user_id:int = None, price:float = -0.10)->bool:
+        try:
+            if user_id is None:
+                return False
 
-    def _set_higher(self, user_id:int = None, price:float = 0.05)->list:
-        pass
+            user = self._get_user(user_id=user_id)
+            if not user:
+                self._add_user(user_id=user['user_id'])
 
+            self._connection()
+            sql = """Update users
+set melding_lager_dan = ?
+WHERE user_id = ?"""
+            cur = self._conn.cursor()
+            cur.execute(sql,(price, user_id,))
+            self._conn.commit()
+            return True
+        except IntegrityError as e:
+            log.error(e, exc_info=True)
+            return False
+        except Error as e:
+            log.error(e)
+            return False
 
     def _get_higher_price_users(self, price:float = 0.001)->list:
         try:
@@ -176,6 +193,30 @@ WHERE user_id = ?"""
             cur = self._conn.cursor()
             cur.execute("SELECT user_id FROM users WHERE melding_hoger_dan < ?", (price, ))
             return [list[0] for list in cur.fetchall()]
+        except IntegrityError as e:
+            log.error(e, exc_info=True)
+            return False
+        except Error as e:
+            log.error(e)
+            return False
+
+    def _set_higher_price_user(self, user_id:int = None, price:float = None)->bool:
+        try:
+            if user_id is None:
+                return False
+
+            user = self._get_user(user_id=user_id)
+            if not user:
+                self._add_user(user_id=user['user_id'])
+
+            self._connection()
+            sql = """Update users
+set melding_hoger_dan = ?
+WHERE user_id = ?"""
+            cur = self._conn.cursor()
+            cur.execute(sql,(price, user_id,))
+            self._conn.commit()
+            return True
         except IntegrityError as e:
             log.error(e, exc_info=True)
             return False

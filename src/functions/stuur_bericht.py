@@ -26,7 +26,6 @@ class StuurBericht:
             log.error(e)
             return False
 
-
     def _bepaalde_gebuikers(self, context: telegram.ext.CallbackContext, msg:str = None, ids:list = None)->bool:
         try:
             if msg is None or ids is None:
