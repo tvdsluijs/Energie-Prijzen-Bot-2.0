@@ -30,7 +30,7 @@ class Dispatcher(Dispatcher_Functions):
             instellingen_handler = CommandHandler(['i','instellingen'], self.instellingen)
             u.dispatcher.add_handler(instellingen_handler)
 
-            afmelden_handler = CommandHandler(['v','afmelden','verwijderme'], self.verwijderme)
+            afmelden_handler = CommandHandler(['afmelden','verwijderme', 'verwijder'], self.verwijderme)
             u.dispatcher.add_handler(afmelden_handler)
 
             ochtend_handler = CommandHandler(['o','ochtend'], self.ochtend_instellen)

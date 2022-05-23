@@ -44,9 +44,10 @@ Systeem informatie:
 ```
 {sysinfo}
 ```"""
-            msg_end = escape_markdown( """Dit systeem is gebouwd onder MIT license. Je kan de code op Github vinden 'Energie-Prijzen-Bot-2.0'""", version=2)
+            msg_end = escape_markdown( """Dit systeem is gebouwd onder MIT license. Je kan de code op Github vinden """, version=2)
+            msg_github_url = """[Energie\-Prijzen\-Bot\-2\.0](https://github\.com/tvdsluijs/Energie\-Prijzen\-Bot\-2\.0)"""
 
-            return msg_sysinfo + msg_end
+            return msg_sysinfo + msg_end + msg_github_url
 
         except Exception as e:
             log.error(e)

@@ -58,11 +58,12 @@ Handmatige berichten
 
 Voor automatische berichten:
 /a → aanmelden
-/v → verwijder je gegevens
 /i → jouw instellingen
-
 /o 9 → ochtend melding 9 uur
 /m 15 → middag melding 15 uur
+
+Gegevens verwijderen?
+/verwijder
 
 Wil je meer hulp? Zet er help achter
 /a help

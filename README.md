@@ -92,6 +92,9 @@ info@itheo.tech
 
 ## Versiegeschiedenis
 
+23th mei, 2022 - versie: 2.0.8 
+- Wat kleine aanpassingen aan help teksten 
+
 23th mei, 2022 - versie: 2.0.7 
 - Bug in opslaan van gegevens wanneer user niet bekend opgelost 
 

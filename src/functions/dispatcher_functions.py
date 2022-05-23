@@ -212,7 +212,8 @@ class Dispatcher_Functions(object):
                 users = len(Users(dbname=self.dbname).get_users())
                 msg = Systeem().systeminfo_msg(version=version, users=users, seconds=seconds, dbname=self.dbname)
 
-            context.bot.send_message(chat_id=update.message.chat_id, text=msg, parse_mode=ParseMode.MARKDOWN_V2)
+            context.bot.send_message(chat_id=update.message.chat_id, text=msg, parse_mode=ParseMode.MARKDOWN_V2,
+                                     disable_web_page_preview=True )
 
         except Exception as e:
             log.error(e, exc_info=True)
