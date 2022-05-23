@@ -61,8 +61,8 @@ Voor automatische berichten:
 /v → verwijder je gegevens
 /i → jouw instellingen
 
-/o aan 9 → ochtend melding 9 uur
-/m aan 15 → middag melding 15 uur
+/o 9 → ochtend melding 9 uur
+/m 15 → middag melding 15 uur
 
 Wil je meer hulp? Zet er help achter
 /a help

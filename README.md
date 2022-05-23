@@ -92,6 +92,9 @@ info@itheo.tech
 
 ## Versiegeschiedenis
 
+23th mei, 2022 - versie: 2.0.7 
+- Bug in opslaan van gegevens wanneer user niet bekend opgelost 
+
 23th mei, 2022 - versie: 2.0.6 
 - Ik was ff vergeten de hoger en lager functies te bouwen :-) daarnaast de ochtend en middag functien verbeterd met extra checks 
 

@@ -94,7 +94,7 @@ class UsersSQL(MainSQL):
 
             user = self._get_user(user_id=user_id)
             if not user:
-                self._add_user(user_id=user['user_id'])
+                self._add_user(user_id=user_id)
 
             self._connection()
             sql = """Update users
@@ -118,7 +118,7 @@ WHERE user_id = ?"""
 
             user = self._get_user(user_id=user_id)
             if not user:
-                self._add_user(user_id=user['user_id'])
+                self._add_user(user_id=user_id)
 
             self._connection()
             sql = """Update users
@@ -170,7 +170,7 @@ WHERE user_id = ?"""
 
             user = self._get_user(user_id=user_id)
             if not user:
-                self._add_user(user_id=user['user_id'])
+                self._add_user(user_id=user_id)
 
             self._connection()
             sql = """Update users
@@ -207,7 +207,7 @@ WHERE user_id = ?"""
 
             user = self._get_user(user_id=user_id)
             if not user:
-                self._add_user(user_id=user['user_id'])
+                self._add_user(user_id=user_id)
 
             self._connection()
             sql = """Update users
