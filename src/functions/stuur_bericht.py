@@ -34,8 +34,13 @@ class StuurBericht:
             for id in ids:
                 if id == 0:
                     continue
-                context.bot.send_message(chat_id=id, text=msg,
-                                         disable_web_page_preview=True)
+                try:
+                    context.bot.send_message(chat_id=id, text=msg,
+                                             disable_web_page_preview=True)
+                except Exception as e:
+                    log.warning(e, id)
+                    pass
+
             return True
         except Exception as e:
             log.error(e)
@@ -49,7 +54,11 @@ class StuurBericht:
             for id in ids:
                 if id == 0:
                     continue
-                context.bot.send_message(chat_id=id, text=msg, parse_mode=ParseMode.MARKDOWN_V2)
+                try:
+                    context.bot.send_message(chat_id=id, text=msg, parse_mode=ParseMode.MARKDOWN_V2)
+                except Exception as e:
+                    log.warning(e, id)
+                    pass
             return True
         except Exception as e:
             log.error(e)
