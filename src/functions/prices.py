@@ -96,7 +96,10 @@ Inkoopprijzen van {elect['fromtime']} tot {self.next_hour(hour=time)}
             int_hour_high = int(fromtime_high[:2]) + 1
             totime_low = f"{int_hour_low:02d}:00"
             totime_hight = f"{int_hour_high:02d}:00"
-            return f"Vandaag is de inkoopprijs van 💡 per kWh het laagst tussen {fromtime_low} en {totime_low} ({low_price}) en het hoogst tussen {totime_hight} en {fromtime_high} ({high_price})"
+            msg_start = f"Vandaag is de inkoopprijs van 💡 per kWh het laagst tussen"
+            msg_low = f" {fromtime_low} en {totime_low} ({low_price})"
+            msg_high = f" en het hoogst tussen {fromtime_high} en {totime_hight} ({high_price})"
+            return msg_start+msg_low+msg_high
         except Exception as e:
             log.error(e, exc_info=True)
             return False

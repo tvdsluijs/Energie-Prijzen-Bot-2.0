@@ -92,6 +92,9 @@ info@itheo.tech
 
 ## Versiegeschiedenis
 
+25th mei, 2022 - versie: 2.1.1 
+- met dank aan Patrick van Dijk die mij wees op een bugje met omgedraaide tijden. 
+
 23th mei, 2022 - versie: 2.1.0 
 - Funding toegevoegd, op naar versie 2.1.0 
 

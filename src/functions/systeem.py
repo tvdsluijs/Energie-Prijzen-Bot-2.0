@@ -114,7 +114,7 @@ Systeem informatie:
             text = ', '.join(texts)
             if len(texts) > 1:
                 index = text.rfind(',')
-                text = f'{text[:index]}, {text[index + 1:]}'
+                text = f'{text[:index]},{text[index + 1:]}'
             return text
         except Exception as e:
             log.error(e)
