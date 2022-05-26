@@ -92,6 +92,9 @@ info@itheo.tech
 
 ## Versiegeschiedenis
 
+26th mei, 2022 - versie: 2.1.2 
+- Bugje gevonden met min prijzen melding 
+
 25th mei, 2022 - versie: 2.1.1 
 - met dank aan Patrick van Dijk die mij wees op een bugje met omgedraaide tijden. 
 

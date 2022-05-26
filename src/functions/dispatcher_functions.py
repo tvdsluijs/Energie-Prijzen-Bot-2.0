@@ -1,5 +1,6 @@
 import os
 from datetime import datetime, timedelta
+import sys
 from time import time
 import telegram
 from telegram import ParseMode
@@ -353,7 +354,7 @@ class Dispatcher_Functions(object):
 
             if (prijs_message := Prices(dbname=self.dbname).get_next_hour_price(date=date, next_hour=next_hour, kind=1)):
                 if (ids := Users(dbname=self.dbname).get_lower_price_users(price=prijs_message['prijs'])):
-                    msg = escape_markdown(prijs_message['msg'])
+                    msg = escape_markdown(prijs_message['msg'], version=2)
                     StuurBericht(dbname=self.dbname)._bepaalde_gebruikers_md(context=context, msg=msg, ids=ids)
         except Exception as e:
             log.error(e, exc_info=True)
@@ -367,7 +368,7 @@ class Dispatcher_Functions(object):
 
             if (prijs_message := Prices(dbname=self.dbname).get_next_hour_price(date=date, next_hour=next_hour, kind=1)):
                 if (ids := Users(dbname=self.dbname).get_higher_price_users(price=prijs_message['prijs'])):
-                    msg = escape_markdown(prijs_message['msg'])
+                    msg = escape_markdown(prijs_message['msg'], version=2)
                     StuurBericht(dbname=self.dbname)._bepaalde_gebruikers_md(context=context, msg=msg, ids=ids)
 
         except Exception as e:
