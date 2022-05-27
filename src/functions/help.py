@@ -105,6 +105,9 @@ Wil je een melding om 8 uur
 Een melding om 10 uur
 /o 10
 
+Ochtend meldingen uitzetten
+/o uit
+
 Je kan maar 1 ochtend melding instellen!
 """
 

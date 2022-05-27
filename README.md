@@ -92,6 +92,9 @@ info@itheo.tech
 
 ## Versiegeschiedenis
 
+27th mei, 2022 - versie: 2.1.2a 
+- Aanpassing help voor /o uit dit stond er niet in, met dank aan @mdvmine 
+
 26th mei, 2022 - versie: 2.1.2 
 - Bugje gevonden met min prijzen melding 
 
